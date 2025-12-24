@@ -8,6 +8,9 @@
     "require": {
         "php": "^8.2",
         "intervention/image": "^3.11",
+        "laravel-lang/attributes": "^2.14",
+        "laravel-lang/http-statuses": "^3.11",
+        "laravel-lang/lang": "^15.26",
         "laravel/framework": "^11.31",
         "laravel/sanctum": "^4.2",
         "laravel/tinker": "^2.9",

@@ -7,6 +7,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\RatingController;
 // veřejné endpointy  slug= nazev receptu bez diakritiky a mezer 
+Route::get('/test-locale', function () {
+    return [
+        'locale' => app()->getLocale(),
+        'test_message' => __('validation.required', ['attribute' => 'email']),
+    ];
+});
 
 Route::get('/recipes', [RecipeController::class, 'index']) //funguje
     ->middleware('optional.auth');
