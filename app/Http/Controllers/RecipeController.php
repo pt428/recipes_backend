@@ -5,13 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRecipeRequest;
 use App\Http\Requests\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
-use App\Models\Ingredient;
 use App\Models\Recipe;
-use App\Models\Step;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use App\Helpers\ApiResponse;
 use Str;
 
@@ -22,8 +19,8 @@ class RecipeController extends Controller
      */
     public function index(Request $request)
     {
-        
-        $recipes = Recipe::with(['category', 'tags'])
+
+        $recipes = Recipe::with(['category', 'author', 'tags'])
             ->visibleFor($request->user())
             ->orderByDesc('created_at')
             ->paginate(10);
@@ -118,10 +115,14 @@ class RecipeController extends Controller
             }
         }
 
-        // LINK – zatím zakázáno
+        // LINK – může zobrazit pouze autor, ostatní musí použít endpoint /by-link/{token}
         if ($recipe->visibility === 'link') {
-            abort(403, 'Tento recept je dostupný pouze přes sdílený odkaz.');
+            // Pokud je to autor, může vidět recept i přes běžný endpoint
+            if (!$user || (int) $recipe->user_id !== (int) $user->id) {
+                abort(403, 'Tento recept je dostupný pouze přes sdílený odkaz.');
+            }
         }
+
 
         // PUBLIC – sem se dostane kdokoliv
         $recipe->load(['category', 'author', 'ingredients', 'steps', 'tags']);
@@ -347,7 +348,7 @@ class RecipeController extends Controller
         $recipe->visibility = 'link';
         $recipe->save();
 
-        $publicUrl = config('app.url') . '/api/recipes/by-link/' . $recipe->share_token;
+        $publicUrl = config('app.url') . '/shared/' . $recipe->share_token;
 
    
         return ApiResponse::success(

@@ -24,6 +24,8 @@ Route::get('/recipes/{recipe}/comments', [CommentController::class, 'index']); /
 Route::post('/register', [AuthController::class, 'register']); //funguje
 Route::post('/login',    [AuthController::class, 'login']); //funguje
  Route::get('/tags', [TagController::class, 'index']);
+
+ 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']); //funguje
     Route::get('/user',    [AuthController::class, 'me']); //funguje

@@ -25,6 +25,7 @@ class RecipeResource extends JsonResource
             'servings'          => $this->servings,
             'serving_type' => $this->serving_type,
             'visibility'        => $this->visibility,
+            'share_token'      => $this->share_token,
             'main_image_url'    => $this->main_image_path
                 ? asset('storage/' . $this->main_image_path)
                 : null,

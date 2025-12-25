@@ -14,7 +14,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
+            'name'     => ['required', 'string', 'max:255', 'unique:users,name'],
             'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'], // očekává i password_confirmation
         ]);
@@ -119,7 +119,7 @@ class AuthController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
+            'name' => ['sometimes', 'string', 'max:255' ,'unique:users,name,' . $user->id,],
             'email' => [
                 'sometimes',
                 'email',
