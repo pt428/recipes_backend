@@ -15,12 +15,15 @@ class RecipeResource extends JsonResource
         return [
             'id'                => $this->id,
             'user_id'           => $this->user_id,
+            'slug'              => $this->slug,
+            'image_path'        => $this->image_path,
             'title'             => $this->title,
             'description'       => $this->description,
             'difficulty'        => $this->difficulty,
             'prep_time_minutes' => $this->prep_time_minutes,
             'cook_time_minutes' => $this->cook_time_minutes,
             'servings'          => $this->servings,
+            'serving_type' => $this->serving_type,
             'visibility'        => $this->visibility,
             'main_image_url'    => $this->main_image_path
                 ? asset('storage/' . $this->main_image_path)
@@ -57,8 +60,13 @@ class RecipeResource extends JsonResource
                     ];
                 });
             }),
-            'tags'              => $this->whenLoaded('tags', function () {
-                return $this->tags->pluck('name');
+            'tags' => $this->whenLoaded('tags', function () {
+                return $this->tags->map(function ($tag) {
+                    return [
+                        'id' => $tag->id,
+                        'name' => $tag->name,
+                    ];
+                });
             }),
             'created_at'        => $this->created_at?->toIso8601String(),
             'updated_at'        => $this->updated_at?->toIso8601String(),

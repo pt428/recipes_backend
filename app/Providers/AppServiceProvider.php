@@ -19,6 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // ✅ FORCE česká locale
+        // app()->setLocale('cs');
+        // config(['app.locale' => 'cs']);
+        // config(['app.fallback_locale' => 'cs']);
     }
 }

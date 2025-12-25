@@ -21,6 +21,7 @@ class UpdateRecipeRequest extends FormRequest
             'prep_time_minutes' => ['sometimes', 'nullable', 'integer', 'min:0'],
             'cook_time_minutes' => ['sometimes', 'nullable', 'integer', 'min:0'],
             'servings'          => ['sometimes', 'required', 'integer', 'min:1'],
+            'serving_type' => ['sometimes', 'required', 'in:servings,pieces'],
             'visibility'        => ['sometimes', 'required', 'in:private,public,link'],
 
             'ingredients'                   => ['sometimes', 'nullable', 'array'],

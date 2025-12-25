@@ -157,6 +157,7 @@ class RecipeController extends Controller
                 'prep_time_minutes' => $data['prep_time_minutes'] ?? $recipe->prep_time_minutes,
                 'cook_time_minutes' => $data['cook_time_minutes'] ?? $recipe->cook_time_minutes,
                 'servings'          => $data['servings']          ?? $recipe->servings,
+                'serving_type'      => $data['serving_type']      ?? $recipe->serving_type,
                 'visibility'        => $data['visibility']        ?? $recipe->visibility,
             ]);
             $recipe->save();

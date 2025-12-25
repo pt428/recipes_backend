@@ -22,6 +22,7 @@ class StoreRecipeRequest extends FormRequest
             'prep_time_minutes' => ['nullable', 'integer', 'min:0'],
             'cook_time_minutes' => ['nullable', 'integer', 'min:0'],
             'servings'          => ['required', 'integer', 'min:1'],
+            'serving_type' => ['required', 'in:servings,pieces'],
             'visibility'        => ['required', 'in:private,public,link'],
 
             // ingredience – pole objektů

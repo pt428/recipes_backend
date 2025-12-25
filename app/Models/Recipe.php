@@ -21,6 +21,7 @@ class Recipe extends Model
         'prep_time_minutes',
         'cook_time_minutes',
         'servings',
+        'serving_type',
         'visibility',
         'main_image_path',
         'image_path',

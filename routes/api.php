@@ -6,13 +6,9 @@ use App\Http\Controllers\RecipeImageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\TagController;
 // veřejné endpointy  slug= nazev receptu bez diakritiky a mezer 
-Route::get('/test-locale', function () {
-    return [
-        'locale' => app()->getLocale(),
-        'test_message' => __('validation.required', ['attribute' => 'email']),
-    ];
-});
+
 
 Route::get('/recipes', [RecipeController::class, 'index']) //funguje
     ->middleware('optional.auth');
@@ -27,7 +23,7 @@ Route::get('/recipes/{recipe}/rating', [RatingController::class, 'show']);
 Route::get('/recipes/{recipe}/comments', [CommentController::class, 'index']); //funguje
 Route::post('/register', [AuthController::class, 'register']); //funguje
 Route::post('/login',    [AuthController::class, 'login']); //funguje
-
+ Route::get('/tags', [TagController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']); //funguje
     Route::get('/user',    [AuthController::class, 'me']); //funguje
@@ -53,4 +49,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // hodnocení
     Route::post('/recipes/{recipe}/rating', [RatingController::class, 'store']); //funguje
     Route::delete('/recipes/{recipe}/rating', [RatingController::class, 'destroy']);
+
+   
 });
