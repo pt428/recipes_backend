@@ -12,20 +12,23 @@ use App\Http\Controllers\TagController;
 
 Route::get('/recipes', [RecipeController::class, 'index']) //funguje
     ->middleware('optional.auth');
-Route::get('/recipes/{recipe}', [RecipeController::class, 'show'])->middleware('optional.auth');; //funguje
+Route::get('/recipes/search', [RecipeController::class, 'search'])
+    ->middleware('optional.auth');;
+Route::get('/recipes/{recipe}', [RecipeController::class, 'show'])
+    ->middleware('optional.auth');; //funguje
 
 
-Route::get('/recipes/search', [RecipeController::class, 'search']);
 
 Route::get('/recipes/public/{slug}', [RecipeController::class, 'showPublic']); //funguje
 Route::get('/recipes/by-link/{token}', [RecipeController::class, 'showByLink']);
+
 Route::get('/recipes/{recipe}/rating', [RatingController::class, 'show']);
 Route::get('/recipes/{recipe}/comments', [CommentController::class, 'index']); //funguje
 Route::post('/register', [AuthController::class, 'register']); //funguje
 Route::post('/login',    [AuthController::class, 'login']); //funguje
- Route::get('/tags', [TagController::class, 'index']);
+Route::get('/tags', [TagController::class, 'index']);
 
- 
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']); //funguje
     Route::get('/user',    [AuthController::class, 'me']); //funguje
@@ -51,6 +54,4 @@ Route::middleware('auth:sanctum')->group(function () {
     // hodnocení
     Route::post('/recipes/{recipe}/rating', [RatingController::class, 'store']); //funguje
     Route::delete('/recipes/{recipe}/rating', [RatingController::class, 'destroy']);
-
-   
 });

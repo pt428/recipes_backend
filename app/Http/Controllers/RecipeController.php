@@ -17,18 +17,24 @@ class RecipeController extends Controller
     /**
      * Seznam receptů aktuálního uživatele (nebo veřejných).
      */
+     
     public function index(Request $request)
     {
+        $perPage = $request->input('per_page', 10); // Výchozí 10, ale lze změnit
+        $perPage = min((int) $perPage, 100); // Maximum 100 receptů na stránku
 
         $recipes = Recipe::with(['category', 'author', 'tags'])
             ->visibleFor($request->user())
             ->orderByDesc('created_at')
-            ->paginate(10);
+            ->paginate($perPage);
 
-        return ApiResponse::success(
-            RecipeResource::collection($recipes),
-            'Recepty byly načteny.'
-        );
+        return ApiResponse::success([
+            'data' => RecipeResource::collection($recipes->items()),
+            'current_page' => $recipes->currentPage(),
+            'last_page' => $recipes->lastPage(),
+            'per_page' => $recipes->perPage(),
+            'total' => $recipes->total(),
+        ], 'Recepty byly načteny.');
     }
 
     /**
@@ -240,9 +246,12 @@ class RecipeController extends Controller
             'Recept byl smazán.'
         );
     }
- 
+
     public function search(Request $request)
     {
+        $perPage = $request->input('per_page', 12); // Výchozí 12, ale lze změnit
+        $perPage = min((int) $perPage, 100); // Maximum 100 receptů na stránku
+
         $query = Recipe::query()
             ->with(['category', 'tags'])
             ->withAvg('ratings', 'rating')
@@ -278,13 +287,18 @@ class RecipeController extends Controller
             );
         }
 
-        // filtr: tagy (recept musí mít všechny tagy)
+        // ✅ ZMĚNA: filtr: tagy (recept musí mít ALESPOŇ JEDEN z vybraných tagů - OR logika)
         if ($tags = $request->input('tags')) {
             $tagIds = explode(',', $tags);
 
-            foreach ($tagIds as $tagId) {
-                $query->whereHas('tags', function ($q2) use ($tagId) {
-                    $q2->where('tags.id', $tagId);
+            // Filtrujeme pouze platná ID (existující tagy)
+            $validTagIds = array_filter($tagIds, function ($id) {
+                return is_numeric($id) && $id > 0;
+            });
+
+            if (!empty($validTagIds)) {
+                $query->whereHas('tags', function ($q2) use ($validTagIds) {
+                    $q2->whereIn('tags.id', $validTagIds);
                 });
             }
         }
@@ -292,17 +306,16 @@ class RecipeController extends Controller
         // řazení – výchozí: nejnovější
         $query->orderBy('created_at', 'desc');
 
-        // return RecipeResource::collection(
-        //     $query->paginate(12)->withQueryString()
-        // );
-        return ApiResponse::success(
-            RecipeResource::collection(
-                $query->paginate(12)->withQueryString()
-            ),
-            'Recepty byly načteny.'
-        );
-    }
+        $recipes = $query->paginate($perPage)->withQueryString();
 
+        return ApiResponse::success([
+            'data' => RecipeResource::collection($recipes->items()),
+            'current_page' => $recipes->currentPage(),
+            'last_page' => $recipes->lastPage(),
+            'per_page' => $recipes->perPage(),
+            'total' => $recipes->total(),
+        ], 'Recepty byly načteny.');
+    }
 
     public function showPublic(string $slug)
     {
