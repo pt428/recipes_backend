@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\CategoryController;
 // veřejné endpointy  slug= nazev receptu bez diakritiky a mezer 
 
 
@@ -24,9 +25,13 @@ Route::get('/recipes/by-link/{token}', [RecipeController::class, 'showByLink']);
 
 Route::get('/recipes/{recipe}/rating', [RatingController::class, 'show']);
 Route::get('/recipes/{recipe}/comments', [CommentController::class, 'index']); //funguje
+
 Route::post('/register', [AuthController::class, 'register']); //funguje
 Route::post('/login',    [AuthController::class, 'login']); //funguje
+
 Route::get('/tags', [TagController::class, 'index']);
+
+Route::get('/categories', [CategoryController::class, 'index']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -39,13 +44,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/recipes', [RecipeController::class, 'store']); //funguje
     Route::put('/recipes/{recipe}', [RecipeController::class, 'update']); //funguje
     Route::delete('/recipes/{recipe}', [RecipeController::class, 'destroy']); //funguje
+
     //recepty-obrazky
     Route::post('/recipes/{recipe}/image', [RecipeImageController::class, 'store']); //funguje
     Route::delete('/recipes/{recipe}/image', [RecipeImageController::class, 'destroy']); //funguje
+
     //recepty-sdileny link
     Route::post('/recipes/{recipe}/share', [RecipeController::class, 'enableShareLink']); //funguje
     Route::delete('/recipes/{recipe}/share', [RecipeController::class, 'disableShareLink']); //funguje
-
 
     // komentáře  
     Route::post('/recipes/{recipe}/comments', [CommentController::class, 'store']); //funguje
@@ -54,4 +60,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // hodnocení
     Route::post('/recipes/{recipe}/rating', [RatingController::class, 'store']); //funguje
     Route::delete('/recipes/{recipe}/rating', [RatingController::class, 'destroy']);
+
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::put('/categories/{category}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 });
