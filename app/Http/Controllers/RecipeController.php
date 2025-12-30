@@ -20,7 +20,7 @@ class RecipeController extends Controller
      
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10); // Výchozí 10, ale lze změnit
+        $perPage = $request->input('per_page', 12); // Výchozí 10, ale lze změnit
         $perPage = min((int) $perPage, 100); // Maximum 100 receptů na stránku
 
         $recipes = Recipe::with(['category', 'author', 'tags'])
