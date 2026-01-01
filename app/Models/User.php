@@ -22,7 +22,18 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+    // Relace k oblíbeným receptům
+    public function favoriteRecipes()
+    {
+        return $this->belongsToMany(Recipe::class, 'favorite_recipes')
+            ->withTimestamps();
+    }
 
+    // Pomocná metoda pro kontrolu, zda je recept oblíbený
+    public function hasFavoriteRecipe($recipeId)
+    {
+        return $this->favoriteRecipes()->where('recipe_id', $recipeId)->exists();
+    }
     public function recipes()
     {
         return $this->hasMany(Recipe::class);

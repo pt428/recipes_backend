@@ -8,6 +8,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\FavoriteController;
 // veřejné endpointy  slug= nazev receptu bez diakritiky a mezer 
 
 
@@ -42,6 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //recepty
     Route::post('/recipes', [RecipeController::class, 'store']); //funguje
+      Route::post('/recipes/bulk', [RecipeController::class, 'storeBulk']); //hromadne pridavani receptu - funguje
     Route::put('/recipes/{recipe}', [RecipeController::class, 'update']); //funguje
     Route::delete('/recipes/{recipe}', [RecipeController::class, 'destroy']); //funguje
 
@@ -64,4 +66,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::put('/categories/{category}', [CategoryController::class, 'update']);
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+
+    // ✅ NOVÉ: Oblíbené recepty
+    Route::prefix('favorites')->group(function () {
+        Route::get('/', [FavoriteController::class, 'index']); // Seznam oblíbených
+        Route::post('/recipes/{recipe}', [FavoriteController::class, 'store']); // Přidat do oblíbených
+        Route::delete('/recipes/{recipe}', [FavoriteController::class, 'destroy']); // Odebrat z oblíbených
+        Route::get('/recipes/{recipe}/check', [FavoriteController::class, 'check']); // Zkontrolovat status
+    });
 });

@@ -2,6 +2,7 @@
 //backend\app\Http\Controllers\RecipeController.php
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreBulkRecipeRequest;
 use App\Http\Requests\StoreRecipeRequest;
 use App\Http\Requests\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
@@ -17,7 +18,7 @@ class RecipeController extends Controller
     /**
      * Seznam receptů aktuálního uživatele (nebo veřejných).
      */
-     
+
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 12); // Výchozí 10, ale lze změnit
@@ -363,7 +364,7 @@ class RecipeController extends Controller
 
         $publicUrl = config('app.url') . '/shared/' . $recipe->share_token;
 
-   
+
         return ApiResponse::success(
             [
                 'share_url'   => $publicUrl,
@@ -391,5 +392,81 @@ class RecipeController extends Controller
             null,
             'Sdílený odkaz byl zrušen.'
         );
+    }
+
+    public function storeBulk(StoreBulkRecipeRequest $request)
+       {
+        $user = $request->user();
+        $validated = $request->validated();
+        $created = [];
+        $errors = [];
+
+        foreach ($validated['recipes'] as $index => $data) {
+            try {
+                $recipe = DB::transaction(function () use ($user, $data) {
+
+                    $recipe = new Recipe();
+                    $recipe->fill([
+                        'title'             => $data['title'],
+                        'description'       => $data['description'] ?? null,
+                        'category_id'       => $data['category_id'] ?? null,
+                        'difficulty'        => $data['difficulty'],
+                        'prep_time_minutes' => $data['prep_time_minutes'] ?? 0,
+                        'cook_time_minutes' => $data['cook_time_minutes'] ?? 0,
+                        'servings'          => $data['servings'],
+                        'serving_type'      => $data['serving_type'],
+                        'visibility'        => $data['visibility'],
+                    ]);
+
+                    $recipe->user_id = $user->id;
+                    $recipe->save();
+
+                    // ingredience
+                    foreach ($data['ingredients'] ?? [] as $ingredient) {
+                        $recipe->ingredients()->create([
+                            'amount' => $ingredient['amount'] ?? null,
+                            'unit'   => $ingredient['unit'] ?? null,
+                            'name'   => $ingredient['name'],
+                            'note'   => $ingredient['note'] ?? null,
+                        ]);
+                    }
+
+                    // kroky
+                    foreach ($data['steps'] ?? [] as $step) {
+                        $recipe->steps()->create([
+                            'order_index' => $step['order_index'],
+                            'text'        => $step['text'],
+                        ]);
+                    }
+
+                    // tagy
+                    if (!empty($data['tags'])) {
+                        $tagIds = collect($data['tags'])
+                            ->map(fn($name) => Tag::firstOrCreate(['name' => $name])->id)
+                            ->all();
+
+                        $recipe->tags()->sync($tagIds);
+                    }
+
+                    return $recipe;
+                });
+
+                $recipe->load(['category', 'author', 'ingredients', 'steps', 'tags']);
+                $created[] = $recipe;
+            } catch (\Throwable $e) {
+                $errors[] = [
+                    'index' => $index,
+                    'title' => $data['title'] ?? null,
+                    'error' => $e->getMessage(),
+                ];
+            }
+        }
+
+        return ApiResponse::success([
+            'created'        => RecipeResource::collection($created),
+            'created_count'  => count($created),
+            'failed_count'   => count($errors),
+            'errors'         => $errors,
+        ], 'Hromadné vytvoření receptů dokončeno.');
     }
 }

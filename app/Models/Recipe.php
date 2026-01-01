@@ -76,7 +76,18 @@ class Recipe extends Model
 
         return $query->where('visibility', 'public');
     }
+    // Relace k uživatelům, kteří mají recept jako oblíbený
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'favorite_recipes')
+            ->withTimestamps();
+    }
 
+    // Počet uživatelů, kteří mají recept jako oblíbený
+    public function favoritesCount()
+    {
+        return $this->favoritedBy()->count();
+    }
     public function author()
     {
         return $this->belongsTo(User::class, 'user_id');
