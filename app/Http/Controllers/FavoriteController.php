@@ -24,7 +24,7 @@ class FavoriteController extends Controller
             ->with(['category', 'author', 'tags'])
             ->withAvg('ratings', 'rating')
             ->withCount('ratings')
-            ->orderByPivot('created_at', 'desc') // Nejnovější oblíbené nahoře
+            ->orderBy('created_at', 'desc') // Nejnovější oblíbené nahoře
             ->paginate($perPage);
 
         return ApiResponse::success([
